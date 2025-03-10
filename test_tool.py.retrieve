@@ -1,0 +1,103 @@
+import os
+import json
+import requests
+
+# 测试参数
+dataset_id = "your_dataset_id"  # 替换为您的知识库ID
+query = "测试查询"
+search_method = "semantic_search"
+reranking_enable = False
+top_k = 3
+score_threshold_enabled = False
+score_threshold = 0.5
+
+# 设置API Key
+api_key = "your_api_key"  # 替换为您的API Key
+
+# 设置请求头
+headers = {
+    'Authorization': f'Bearer {api_key}',
+    'Content-Type': 'application/json'
+}
+
+print("开始API请求测试...")
+
+# 构建检索模型参数
+retrieval_model = {
+    "search_method": search_method,
+    "reranking_enable": reranking_enable,
+    "reranking_mode": None,
+    "reranking_model": {
+        "reranking_provider_name": "",
+        "reranking_model_name": ""
+    },
+    "weights": None,
+    "top_k": top_k,
+    "score_threshold_enabled": score_threshold_enabled,
+    "score_threshold": score_threshold if score_threshold_enabled else None
+}
+
+# 执行知识库检索
+print(f"从知识库 {dataset_id} 检索与 '{query}' 相关的信息...")
+
+try:
+    url = f"https://api.dify.ai/v1/datasets/{dataset_id}/retrieve"
+    
+    payload = {
+        "query": query,
+        "retrieval_model": retrieval_model
+    }
+    
+    print(f"请求URL: {url}")
+    print(f"请求参数: {payload}")
+    
+    response = requests.post(url, headers=headers, json=payload)
+    print(f"响应状态码: {response.status_code}")
+    print(f"响应内容: {response.text}")
+    
+    if response.status_code == 200:
+        result = response.json()
+        records = result.get('records', [])
+        
+        if not records:
+            print(f"未找到与 '{query}' 相关的信息。")
+        else:
+            print(f"找到 {len(records)} 条相关信息:")
+            
+            for i, record in enumerate(records):
+                segment = record.get('segment', {})
+                content = segment.get('content', '')
+                document = segment.get('document', {})
+                document_name = document.get('name', '未知文档')
+                score = record.get('score', 0)
+                
+                print(f"结果 {i+1}:")
+                print(f"文档: {document_name}")
+                print(f"相关度: {score}")
+                print(f"内容: {content}")
+                print("-------------------")
+            
+            # 输出最终JSON响应
+            print("\n最终JSON响应:")
+            final_response = {
+                "status": "success",
+                "query": query,
+                "knowledge_base_id": dataset_id,
+                "results": records
+            }
+            print(json.dumps(final_response, indent=2, ensure_ascii=False))
+    else:
+        error_data = response.json()
+        error_code = error_data.get('code', 'unknown_error')
+        error_message = error_data.get('message', '未知错误')
+        
+        if error_code == "dataset_not_found":
+            print("知识库不存在或无权访问")
+        elif error_code == "invalid_api_key":
+            print("API Key无效")
+        else:
+            print(f"检索知识库时出错: {error_message}")
+except Exception as e:
+    print(f"测试过程中发生错误: {str(e)}")
+
+print("测试完成") 

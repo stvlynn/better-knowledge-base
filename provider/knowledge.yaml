@@ -1,0 +1,32 @@
+identity:
+  author: stvlynn
+  name: knowledge
+  label:
+    en_US: Dify Knowledge Base
+    zh_Hans: Dify 知识库
+  description:
+    en_US: A tool to manage Dify Knowledge Base - upload content and retrieve information
+    zh_Hans: 一个管理Dify知识库的工具 - 上传内容和检索信息
+  icon: icon.svg
+  tags:
+    - productivity
+    - education
+credentials_for_provider:
+  api_key:
+    type: secret-input
+    required: true
+    label:
+      en_US: Dify Knowledge Base API Key
+      zh_Hans: Dify 知识库 API Key
+    placeholder:
+      en_US: Please input your Dify Knowledge Base API Key
+      zh_Hans: 请输入您的Dify知识库API Key
+    help:
+      en_US: Get your API Key from Dify Knowledge Base API Access page
+      zh_Hans: 从Dify知识库API访问页面获取您的API Key
+tools:
+  - tools/knowledge_upload.yaml
+  - tools/knowledge_retrieve.yaml
+extra:
+  python:
+    source: provider/knowledge.py

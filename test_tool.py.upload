@@ -1,0 +1,250 @@
+import os
+import json
+import time
+import requests
+
+# 测试选项
+test_upload = True  # 设置为True测试上传功能
+test_retrieve = True  # 设置为True测试检索功能
+
+# 上传功能测试参数
+knowledge_base_name = "Test KB"
+description = ""
+document_name = "Test Doc"
+text_content = "This is a test content for the document."
+permission = "only_me"
+indexing_technique = "high_quality"
+
+# 检索功能测试参数
+dataset_id = "your_dataset_id"  # 替换为您的知识库ID，如果测试上传成功，会自动使用上传创建的知识库ID
+query = "test"
+search_method = "semantic_search"
+reranking_enable = False
+top_k = 3
+score_threshold_enabled = False
+score_threshold = 0.5
+
+# 设置API Key
+api_key = "test_key"  # 替换为您的实际API Key
+
+# 设置请求头
+headers = {
+    'Authorization': f'Bearer {api_key}',
+    'Content-Type': 'application/json'
+}
+
+print("开始API请求测试...")
+
+# 上传功能测试
+if test_upload:
+    print("\n===== 测试上传功能 =====")
+    # 步骤1: 创建知识库
+    print("步骤1: 创建知识库")
+    url = "https://api.dify.ai/v1/datasets"
+    payload = {
+        "name": knowledge_base_name,
+        "description": description,
+        "permission": permission,
+        "indexing_technique": indexing_technique,
+        "provider": "vendor"
+    }
+
+    print(f"请求URL: {url}")
+    print(f"请求参数: {payload}")
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        print(f"响应状态码: {response.status_code}")
+        print(f"响应内容: {response.text}")
+        
+        if response.status_code == 200:
+            result = response.json()
+            dataset_id = result.get('id')
+            print(f"知识库创建成功，ID: {dataset_id}")
+            
+            # 步骤2: 通过文本创建文档
+            print("\n步骤2: 创建文档")
+            url = f"https://api.dify.ai/v1/datasets/{dataset_id}/document/create-by-text"
+            
+            # 准备处理规则
+            process_rule = {
+                "mode": "automatic"
+            }
+            
+            payload = {
+                "name": document_name,
+                "text": text_content,
+                "indexing_technique": indexing_technique,
+                "process_rule": process_rule
+            }
+            
+            print(f"请求URL: {url}")
+            print(f"请求参数: {payload}")
+            
+            response = requests.post(url, headers=headers, json=payload)
+            print(f"响应状态码: {response.status_code}")
+            print(f"响应内容: {response.text}")
+            
+            if response.status_code == 200:
+                result = response.json()
+                document = result.get('document', {})
+                document_id = document.get('id')
+                batch = result.get('batch', '')
+                print(f"文档创建成功，ID: {document_id}, 批次: {batch}")
+                
+                # 步骤3: 检查文档处理状态
+                print("\n步骤3: 检查文档处理状态")
+                url = f"https://api.dify.ai/v1/datasets/{dataset_id}/documents/{batch}/indexing-status"
+                
+                print(f"请求URL: {url}")
+                
+                response = requests.get(url, headers=headers)
+                print(f"响应状态码: {response.status_code}")
+                print(f"响应内容: {response.text}")
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    documents = result.get('data', [])
+                    if documents:
+                        document = documents[0]
+# Step 1: Create knowledge base
+print("Step 1: Creating knowledge base")
+url = "https://api.dify.ai/v1/datasets"
+payload = {
+    "name": knowledge_base_name,
+    "description": description,
+    "permission": permission,
+    "indexing_technique": indexing_technique,
+    "provider": "vendor"
+}
+
+print(f"Request URL: {url}")
+print(f"Request parameters: {payload}")
+
+try:
+    response = requests.post(url, headers=headers, json=payload)
+    print(f"Response status code: {response.status_code}")
+    print(f"Response content: {response.text}")
+    
+    if response.status_code == 200:
+        result = response.json()
+        dataset_id = result.get('id')
+        print(f"Knowledge base created successfully, ID: {dataset_id}")
+        
+        # Step 2: Create document by text
+        print("\nStep 2: Creating document")
+        url = f"https://api.dify.ai/v1/datasets/{dataset_id}/document/create-by-text"
+        
+        # Prepare processing rules
+        process_rule = {
+            "mode": "automatic"
+        }
+        
+        payload = {
+            "name": document_name,
+            "text": text_content,
+            "indexing_technique": indexing_technique,
+            "process_rule": process_rule
+        }
+        
+        print(f"Request URL: {url}")
+        print(f"Request parameters: {payload}")
+        
+        response = requests.post(url, headers=headers, json=payload)
+        print(f"Response status code: {response.status_code}")
+        print(f"Response content: {response.text}")
+        
+        if response.status_code == 200:
+            result = response.json()
+            document = result.get('document', {})
+            document_id = document.get('id')
+            batch = result.get('batch', '')
+            print(f"Document created successfully, ID: {document_id}, Batch: {batch}")
+            
+            # Step 3: Check document processing status
+            print("\nStep 3: Checking document processing status")
+            url = f"https://api.dify.ai/v1/datasets/{dataset_id}/documents/{batch}/indexing-status"
+            
+            print(f"Request URL: {url}")
+            
+            response = requests.get(url, headers=headers)
+            print(f"Response status code: {response.status_code}")
+            print(f"Response content: {response.text}")
+            
+            if response.status_code == 200:
+                result = response.json()
+                documents = result.get('data', [])
+                if documents:
+                    document = documents[0]
+                    status = document.get('indexing_status', 'unknown')
+                    print(f"Document status: {status}")
+                    
+                    # 测试输出JSON响应
+                    print("\nStep 4: 输出最终JSON响应")
+                    final_response = {
+                        "status": "success",
+                        "knowledge_base_id": dataset_id,  # 单独列出知识库ID作为顶级字段
+                        "knowledge_base": {
+                            "id": dataset_id,
+                            "name": knowledge_base_name
+                        },
+                        "document": {
+                            "id": document_id,
+                            "name": document_name,
+                            "batch": batch,
+                            "status": status
+                        }
+                    }
+                    print(f"最终JSON响应: {json.dumps(final_response, indent=2)}")
+                    print(f"知识库ID: {final_response['knowledge_base_id']}")
+                else:
+                    print("No document status information found")
+            else:
+                error_data = response.json()
+                error_code = error_data.get('code', 'unknown_error')
+                error_message = error_data.get('message', 'Unknown error')
+                
+                if error_code == "archived_document_immutable":
+                    print("Error: The archived document is not editable.")
+                elif error_code == "document_already_finished":
+                    print("Error: The document has been processed. Please refresh the page or go to the document details.")
+                elif error_code == "document_indexing":
+                    print("Error: The document is being processed and cannot be edited.")
+                else:
+                    print(f"Error checking document status: {error_message}")
+        else:
+            error_data = response.json()
+            error_code = error_data.get('code', 'unknown_error')
+            error_message = error_data.get('message', 'Unknown error')
+            
+            if error_code == "no_file_uploaded":
+                print("Error: Please upload your file.")
+            elif error_code == "too_many_files":
+                print("Error: Only one file is allowed.")
+            elif error_code == "file_too_large":
+                print("Error: File size exceeded.")
+            elif error_code == "unsupported_file_type":
+                print("Error: File type not allowed.")
+            elif error_code == "high_quality_dataset_only":
+                print("Error: Current operation only supports 'high-quality' datasets.")
+            elif error_code == "dataset_not_initialized":
+                print("Error: The dataset is still being initialized or indexing. Please wait a moment.")
+            elif error_code == "invalid_metadata":
+                print("Error: The metadata content is incorrect. Please check and verify.")
+            else:
+                print(f"Error creating document: {error_message}")
+    else:
+        error_data = response.json()
+        error_code = error_data.get('code', 'unknown_error')
+        error_message = error_data.get('message', 'Unknown error')
+        
+        if error_code == "dataset_name_duplicate":
+            print("Error: The dataset name already exists. Please modify your dataset name.")
+        elif error_code == "invalid_action":
+            print("Error: Invalid action.")
+        else:
+            print(f"Error creating knowledge base: {error_message}")
+except Exception as e:
+    print(f"Error occurred during test: {str(e)}")
+
+print("Test completed") 

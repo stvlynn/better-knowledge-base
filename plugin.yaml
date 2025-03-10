@@ -1,0 +1,19 @@
+name: knowledge-manager
+version: 0.0.1
+description:
+  en_US: Manage Dify knowledge base - create, upload text content, and retrieve information
+  zh_Hans: 管理Dify知识库 - 创建、上传文本内容和检索信息
+author: stvlynn
+avatar: ./_assets/icon.svg
+category: knowledge
+type: tool
+env:
+  - name: DIFY_KNOWLEDGE_API_KEY
+    description:
+      en_US: Dify Knowledge API Key
+      zh_Hans: Dify知识库API密钥
+    type: secret
+    required: true
+    help:
+      en_US: You can get the API Key from the API Access page in the Dify knowledge base
+      zh_Hans: 您可以从Dify知识库的API访问页面获取API密钥 

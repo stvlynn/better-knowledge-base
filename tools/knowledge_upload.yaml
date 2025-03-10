@@ -1,0 +1,101 @@
+identity:
+  name: knowledge_upload
+  author: stvlynn
+  label:
+    en_US: Upload to Knowledge Base
+    zh_Hans: 上传到知识库
+description:
+  human:
+    en_US: A tool to upload text content to Dify Knowledge Base.
+    zh_Hans: 一个上传文本内容到Dify知识库的工具。
+  llm: A tool to upload text content to Dify Knowledge Base.
+parameters:
+  - name: knowledge_base_name
+    type: string
+    required: true
+    label:
+      en_US: Knowledge Base Name
+      zh_Hans: 知识库名称
+    human_description:
+      en_US: The name of the knowledge base to create
+      zh_Hans: 要创建的知识库名称
+    llm_description: The name of the knowledge base to create
+    form: form
+  - name: description
+    type: string
+    required: false
+    label:
+      en_US: Description
+      zh_Hans: 描述
+    human_description:
+      en_US: The description of the knowledge base
+      zh_Hans: 知识库的描述
+    llm_description: The description of the knowledge base
+    form: form
+  - name: document_name
+    type: string
+    required: true
+    label:
+      en_US: Document Name
+      zh_Hans: 文档名称
+    human_description:
+      en_US: The name of the document to create
+      zh_Hans: 要创建的文档名称
+    llm_description: The name of the document to create
+    form: form
+  - name: text
+    type: string
+    required: true
+    label:
+      en_US: Text Content
+      zh_Hans: 文本内容
+    human_description:
+      en_US: The text content to upload to the knowledge base
+      zh_Hans: 要上传到知识库的文本内容
+    llm_description: The text content to upload to the knowledge base
+    form: llm
+  - name: permission
+    type: select
+    required: true
+    options:
+      - value: only_me
+        label:
+          en_US: Only Me
+          zh_Hans: 仅自己
+      - value: publicly_readable
+        label:
+          en_US: Publicly Readable
+          zh_Hans: 公开可读
+    default: only_me
+    label:
+      en_US: Permission
+      zh_Hans: 权限
+    human_description:
+      en_US: The permission of the knowledge base (only_me or publicly_readable)
+      zh_Hans: 知识库的权限（仅自己或公开可读）
+    llm_description: The permission of the knowledge base (only_me or publicly_readable)
+    form: form
+  - name: indexing_technique
+    type: select
+    required: true
+    options:
+      - value: high_quality
+        label:
+          en_US: High Quality
+          zh_Hans: 高质量
+      - value: economy
+        label:
+          en_US: Economy
+          zh_Hans: 经济
+    default: high_quality
+    label:
+      en_US: Indexing Technique
+      zh_Hans: 索引技术
+    human_description:
+      en_US: The indexing technique to use (high_quality or economy)
+      zh_Hans: 要使用的索引技术（高质量或经济）
+    llm_description: The indexing technique to use (high_quality or economy)
+    form: form
+extra:
+  python:
+    source: tools/knowledge_upload.py 
