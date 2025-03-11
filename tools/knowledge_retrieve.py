@@ -9,7 +9,7 @@ from dify_plugin.entities.tool import ToolInvokeMessage
 
 class KnowledgeRetrieveTool(Tool):
     def _invoke(self, tool_parameters: dict[str, Any]) -> Generator[ToolInvokeMessage, None, None]:
-        # 获取参数
+        # Get parameters
         dataset_id = tool_parameters.get('dataset_id')
         query = tool_parameters.get('query')
         search_method = tool_parameters.get('search_method', 'semantic_search')
@@ -18,31 +18,31 @@ class KnowledgeRetrieveTool(Tool):
         score_threshold_enabled = tool_parameters.get('score_threshold_enabled', False)
         score_threshold = tool_parameters.get('score_threshold', 0.5)
         
-        # 调试信息
-        print(f"接收到的参数: {tool_parameters}")
+        # Debug information
+        print(f"Received parameters: {tool_parameters}")
         
-        # 检查必要参数
+        # Check required parameters
         if not dataset_id:
-            yield self.create_text_message("知识库ID是必需的。")
+            yield self.create_text_message("Knowledge base ID is required.")
             return
         
         if not query:
-            yield self.create_text_message("查询内容是必需的。")
+            yield self.create_text_message("Query content is required.")
             return
         
-        # 从环境变量获取API Key
+        # Get API Key from environment variables
         api_key = os.environ.get('DIFY_KNOWLEDGE_API_KEY')
         if not api_key:
-            yield self.create_text_message("未找到API Key。请确保在插件配置中设置了它。")
+            yield self.create_text_message("API Key not found. Please make sure it's set in the plugin configuration.")
             return
         
-        # 设置请求头
+        # Set request headers
         headers = {
             'Authorization': f'Bearer {api_key}',
             'Content-Type': 'application/json'
         }
         
-        # 构建检索模型参数
+        # Build retrieval model parameters
         retrieval_model = {
             "search_method": search_method,
             "reranking_enable": reranking_enable,
@@ -57,44 +57,44 @@ class KnowledgeRetrieveTool(Tool):
             "score_threshold": score_threshold if score_threshold_enabled else None
         }
         
-        # 执行知识库检索
-        yield self.create_text_message(f"正在从知识库 {dataset_id} 检索与 '{query}' 相关的信息...")
+        # Perform knowledge base retrieval
+        yield self.create_text_message(f"Retrieving information from knowledge base {dataset_id} related to '{query}'...")
         
         result = self._retrieve_from_knowledge_base(headers, dataset_id, query, retrieval_model)
         if not result:
-            yield self.create_text_message("检索失败。请检查您的API Key和参数。")
+            yield self.create_text_message("Retrieval failed. Please check your API Key and parameters.")
             return
         
         if isinstance(result, str):
-            # 这是一个错误消息
-            yield self.create_text_message(f"错误: {result}")
+            # This is an error message
+            yield self.create_text_message(f"Error: {result}")
             return
             
         records = result.get('records', [])
         
         if not records:
-            yield self.create_text_message(f"未找到与 '{query}' 相关的信息。")
+            yield self.create_text_message(f"No information found related to '{query}'.")
             return
         
-        # 返回检索结果
-        yield self.create_text_message(f"找到 {len(records)} 条相关信息:")
+        # Return retrieval results
+        yield self.create_text_message(f"Found {len(records)} related results:")
         
         for i, record in enumerate(records):
             segment = record.get('segment', {})
             content = segment.get('content', '')
             document = segment.get('document', {})
-            document_name = document.get('name', '未知文档')
+            document_name = document.get('name', 'Unknown document')
             score = record.get('score', 0)
             
-            result_text = f"结果 {i+1}:\n"
-            result_text += f"文档: {document_name}\n"
-            result_text += f"相关度: {score}\n"
-            result_text += f"内容: {content}\n"
+            result_text = f"Result {i+1}:\n"
+            result_text += f"Document: {document_name}\n"
+            result_text += f"Relevance: {score}\n"
+            result_text += f"Content: {content}\n"
             result_text += "-------------------"
             
             yield self.create_text_message(result_text)
         
-        # 返回详细信息
+        # Return detailed information
         yield self.create_json_message({
             "status": "success",
             "query": query,
@@ -103,7 +103,7 @@ class KnowledgeRetrieveTool(Tool):
         })
     
     def _retrieve_from_knowledge_base(self, headers: Dict, dataset_id: str, query: str, retrieval_model: Dict) -> Optional[Dict]:
-        """从知识库检索信息"""
+        """Retrieve information from knowledge base"""
         try:
             url = f"https://api.dify.ai/v1/datasets/{dataset_id}/retrieve"
             
@@ -112,30 +112,30 @@ class KnowledgeRetrieveTool(Tool):
                 "retrieval_model": retrieval_model
             }
             
-            print(f"知识库检索请求URL: {url}")
-            print(f"知识库检索请求参数: {payload}")
+            print(f"Knowledge base retrieval request URL: {url}")
+            print(f"Knowledge base retrieval request parameters: {payload}")
             
             response = requests.post(url, headers=headers, json=payload)
             
-            print(f"知识库检索响应状态码: {response.status_code}")
-            print(f"知识库检索响应内容: {response.text}")
+            print(f"Knowledge base retrieval response status code: {response.status_code}")
+            print(f"Knowledge base retrieval response content: {response.text}")
             
             if response.status_code == 200:
                 return response.json()
             else:
                 error_data = response.json()
                 error_code = error_data.get('code', 'unknown_error')
-                error_message = error_data.get('message', '未知错误')
+                error_message = error_data.get('message', 'Unknown error')
                 
                 if error_code == "dataset_not_found":
-                    return "知识库不存在或无权访问"
+                    return "Knowledge base does not exist or you don't have access"
                 elif error_code == "invalid_api_key":
-                    return "API Key无效"
+                    return "Invalid API Key"
                 else:
-                    print(f"检索知识库时出错: {error_message}")
-                    print(f"状态码: {response.status_code}")
-                    print(f"响应内容: {response.text}")
-                    return f"检索失败: {error_message}"
+                    print(f"Error retrieving from knowledge base: {error_message}")
+                    print(f"Status code: {response.status_code}")
+                    print(f"Response content: {response.text}")
+                    return f"Retrieval failed: {error_message}"
         except Exception as e:
-            print(f"检索知识库时发生错误: {str(e)}")
-            return f"发生异常: {str(e)}" 
+            print(f"Error occurred while retrieving from knowledge base: {str(e)}")
+            return f"Exception occurred: {str(e)}" 

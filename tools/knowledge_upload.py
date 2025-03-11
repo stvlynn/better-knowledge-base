@@ -96,8 +96,8 @@ class KnowledgeUploadTool(Tool):
         
         # Return detailed information
         yield self.create_json_message({
-            "status": "success",
-            "knowledge_base_id": dataset_id,
+            "status": 200,
+            "id": dataset_id,
             "knowledge_base": {
                 "id": dataset_id,
                 "name": knowledge_base_name

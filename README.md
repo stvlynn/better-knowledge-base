@@ -1,18 +1,7 @@
 # Dify Knowledge Base Manager Plugin
 
 A plugin for managing Dify knowledge base - creating knowledge bases, uploading text content, and retrieving information.
-
-## Features
-
-- One-click creation of new knowledge bases and text content upload
-- Support for direct text content upload to Dify knowledge base
-- Support for selecting indexing technology (high quality or economy mode)
-- Support for setting knowledge base permissions (only me or publicly readable)
-- Provides upload status and result feedback
-- Retrieves information from knowledge base using various search methods
-- Support for keyword search, semantic search, full-text search, and hybrid search
-- Support for result reranking and score threshold filtering
-- Returns knowledge base ID as output variable for further operations
+![](./img/actions.png)
 
 ## Prerequisites
 
@@ -23,10 +12,15 @@ Before using this plugin, you need:
 
 ## How to Get API Key
 
-1. Log in to the Dify platform
+1. Log in to [Dify.ai](https://cloud.dify.ai)
 2. Navigate to the knowledge base page
 3. Switch to the **API Access** page from the left navigation
 4. Manage access credentials in the **API Keys** section
+<iframe
+  src="https://www.motionshot.app/walkthrough/67d03b3a6058d05660c65e41/embed?hideSteps=1&hideAsSteps=1&hideDownload=1&hideCopy=1&fullscreen=1"
+  width="100%"
+  style='border: 1px solid rgba(0,0,0,0.16); border-radius: 20px; min-height: 740px'
+></iframe>
 
 ## How to Get Knowledge Base ID
 
@@ -36,6 +30,7 @@ where `12345678-1234-1234-1234-123456789012` is the knowledge base ID.
 
 ## Upload Tool Parameters
 
+![](./img/upload.png)
 - **Knowledge Base Name**: The name of the knowledge base to create
 - **Description**: Description of the knowledge base (optional)
 - **Document Name**: The name of the document to create
@@ -47,6 +42,7 @@ where `12345678-1234-1234-1234-123456789012` is the knowledge base ID.
 
 ## Retrieve Tool Parameters
 
+![](./img/retrieve.png)
 - **Knowledge Base ID**: The ID of the knowledge base to retrieve from (required)
 - **Query**: The query to search for in the knowledge base (required)
 - **Search Method**: The method to use for searching the knowledge base (optional, default is semantic search)
@@ -58,20 +54,6 @@ where `12345678-1234-1234-1234-123456789012` is the knowledge base ID.
 - **Number of Results**: The number of results to return (optional, default is 3)
 - **Enable Score Threshold**: Whether to enable score threshold filtering (optional, default is false)
 - **Score Threshold**: The minimum score threshold for results (0-1) (optional, default is 0.5)
-
-## Upload Workflow
-
-1. Create a new knowledge base
-2. Create a document with text
-3. Query document processing status
-4. Return processing results and knowledge base ID
-
-## Retrieve Workflow
-
-1. Provide knowledge base ID and query content
-2. Select search method and other parameters
-3. Execute knowledge base retrieval
-4. Return retrieval results and related information
 
 ## Upload Output
 
@@ -126,36 +108,15 @@ The `knowledge_base_id` field can be used for further operations with the knowle
 - If processing is not complete, the plugin will return the current status, and you can check the processing results later on the Dify platform
 - Text content will be automatically segmented for processing, using automatic mode by default
 
-## Error Handling
+## Supported File Formats
 
-The plugin handles various error scenarios including:
-- Invalid API keys
-- Duplicate knowledge base names
-- File size limitations
-- Unsupported file types
-- Processing status errors
-- Knowledge base not found or no access
-- Query parameter errors
-
-## knowledge-manager
-
-**Author:** stvlynn
-**Version:** 0.0.1
-**Type:** tool
-
-### Description
-
-A tool for managing Dify knowledge base - creating knowledge bases, uploading text content, and retrieving information.
-
-## 支持的文件格式
-
-- 文本文件 (.txt)
-- PDF文件 (.pdf)
-- Word文档 (.doc, .docx)
-- Markdown文件 (.md, .markdown)
-- HTML文件 (.html, .htm)
-- Excel文件 (.xlsx)
-- CSV文件 (.csv)
+- Text files (.txt)
+- PDF files (.pdf)
+- Word documents (.doc, .docx)
+- Markdown files (.md, .markdown)
+- HTML files (.html, .htm)
+- Excel files (.xlsx)
+- CSV files (.csv)
 
 
 

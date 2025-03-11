@@ -162,4 +162,87 @@ try:
 except Exception as e:
     print(f"Error occurred during test: {str(e)}")
 
-print("Test completed") 
+print("Test completed")
+
+def test_knowledge_upload_tool():
+    """Test the KnowledgeUploadTool with the modified output"""
+    from tools.knowledge_upload import KnowledgeUploadTool
+    from dify_plugin.entities.tool import ToolInvokeMessage
+    from unittest.mock import MagicMock, patch
+    
+    print("\n=== Testing KnowledgeUploadTool with modified output ===")
+    
+    # Create mock objects for runtime and session
+    mock_runtime = MagicMock()
+    mock_session = MagicMock()
+    
+    # Create tool instance with mock objects
+    tool = KnowledgeUploadTool(mock_runtime, mock_session)
+    
+    # Set test parameters
+    tool_parameters = {
+        "knowledge_base_name": "Test KB",
+        "description": "Test description",
+        "document_name": "Test Doc",
+        "text": "This is a test content for the document.",
+        "permission": "only_me",
+        "indexing_technique": "high_quality"
+    }
+    
+    # Mock the API calls
+    tool._create_knowledge_base = lambda headers, name, desc, perm, tech: "test-dataset-id-123"
+    tool._create_document_by_text = lambda headers, dataset_id, doc_name, text, tech: {"id": "test-doc-id-456", "batch": "test-batch-789"}
+    tool._check_document_status = lambda headers, dataset_id, batch: "completed"
+    
+    # Mock the create_text_message and create_json_message methods
+    def mock_create_text_message(content):
+        mock_msg = MagicMock()
+        mock_msg.message_type = "text"
+        mock_msg.content = content
+        return mock_msg
+    
+    def mock_create_json_message(content):
+        mock_msg = MagicMock()
+        mock_msg.message_type = "json"
+        mock_msg.content = json.dumps(content)
+        return mock_msg
+    
+    tool.create_text_message = mock_create_text_message
+    tool.create_json_message = mock_create_json_message
+    
+    # Mock environment variable for API key
+    with patch.dict('os.environ', {'DIFY_KNOWLEDGE_API_KEY': 'test_api_key'}):
+        # Invoke the tool
+        messages = list(tool._invoke(tool_parameters))
+        
+        # Print all messages
+        for i, msg in enumerate(messages):
+            print(f"Message {i+1}: {msg.message_type}")
+            if msg.message_type == "json":
+                json_content = json.loads(msg.content)
+                print(f"JSON content: {json.dumps(json_content, indent=2)}")
+                
+                # Verify the output fields
+                assert "id" in json_content, "Missing 'id' field in output"
+                assert "status" in json_content, "Missing 'status' field in output"
+                assert json_content["status"] == 200, "Status should be 200"
+                assert json_content["id"] == "test-dataset-id-123", "ID should match the test dataset ID"
+                
+                print("✅ Output validation passed!")
+            else:
+                print(f"Content: {msg.content}")
+    
+    print("=== Test completed ===\n")
+
+if __name__ == "__main__":
+    # Run the new test for the modified output
+    test_knowledge_upload_tool()
+    
+    # Uncomment to run the original API test
+    # try:
+    #     # Step 1: Create knowledge base
+    #     # ... existing code ...
+    # except Exception as e:
+    #     print(f"Error occurred during test: {str(e)}")
+    # 
+    # print("Test completed") 
